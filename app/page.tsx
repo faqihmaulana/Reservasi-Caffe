@@ -1,19 +1,43 @@
 'use client';
+
 import { useMemo, useState } from 'react';
 
-const seats=[
- {code:'A01',cap:2,x:12,y:30,shape:'round'}, {code:'A02',cap:2,x:29,y:28,shape:'round',occupied:true},
- {code:'B01',cap:4,x:48,y:26,shape:'square'}, {code:'B02',cap:4,x:67,y:26,shape:'square'}, {code:'C01',cap:2,x:84,y:29,shape:'round'},
- {code:'A03',cap:2,x:13,y:65,shape:'round'}, {code:'B03',cap:4,x:34,y:66,shape:'square'}, {code:'C02',cap:2,x:55,y:67,shape:'round',occupied:true},
- {code:'D01',cap:4,x:74,y:65,shape:'square'}, {code:'D02',cap:2,x:89,y:67,shape:'round'}
+const seats = [
+  { code:'A01',cap:2,x:12,y:30,shape:'round' }, { code:'A02',cap:2,x:29,y:28,shape:'round',occupied:true },
+  { code:'B01',cap:4,x:48,y:26,shape:'square' }, { code:'B02',cap:4,x:67,y:26,shape:'square' }, { code:'C01',cap:2,x:84,y:29,shape:'round' },
+  { code:'A03',cap:2,x:13,y:65,shape:'round' }, { code:'B03',cap:4,x:34,y:66,shape:'square' }, { code:'C02',cap:2,x:55,y:67,shape:'round',occupied:true },
+  { code:'D01',cap:4,x:74,y:65,shape:'square' }, { code:'D02',cap:2,x:89,y:67,shape:'round' }
 ];
+
 export default function Home(){
- const [selected,setSelected]=useState<string|null>(null); const [open,setOpen]=useState(false); const [toast,setToast]=useState('');
- const [date,setDate]=useState(''); const [time,setTime]=useState('18:30'); const [guests,setGuests]=useState('2 guests');
+ const [selected,setSelected]=useState<string|null>(null);
+ const [open,setOpen]=useState(false);
+ const [toast,setToast]=useState('');
+ const [date,setDate]=useState('');
+ const [time,setTime]=useState('18:30');
+ const [guests,setGuests]=useState('2 guests');
+ const [name,setName]=useState('');
+ const [email,setEmail]=useState('');
+ const [phone,setPhone]=useState('');
+ const [loading,setLoading]=useState(false);
  const fee=useMemo(()=>selected?25000:0,[selected]);
- const notify=(m:string)=>{setToast(m);setTimeout(()=>setToast(''),2600)};
+ const notify=(m:string)=>{setToast(m);setTimeout(()=>setToast(''),3000)};
  const choose=(s:any)=>{if(s.occupied)return;setSelected(s.code)};
- const confirm=()=>{setOpen(false);notify(`Reservasi ${selected} berhasil dibuat. Kode akan dikirim setelah backend aktif.`)};
+ const confirm=async()=>{
+   if(!date){notify('Pilih tanggal reservasi terlebih dahulu.');return}
+   if(!selected){notify('Pilih kursi terlebih dahulu.');return}
+   if(!name.trim()||!email.trim()){notify('Isi nama dan email terlebih dahulu.');return}
+   setLoading(true);
+   try{
+     const res=await fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,phone,seatCode:selected,date,startTime:time,guests:Number.parseInt(guests),})});
+     const body=await res.json();
+     if(!res.ok)throw new Error(body.error||'Reservasi gagal.');
+     setOpen(false);
+     notify(`Reservasi ${body.reservation.code} berhasil dibuat.`);
+     setSelected(null);
+   }catch(error){notify(error instanceof Error?error.message:'Reservasi gagal.')}
+   finally{setLoading(false)}
+ };
  return <>
  <header className="nav"><div className="wrap" style={{display:'flex',width:'100%',justifyContent:'space-between',alignItems:'center'}}><a className="brand"><span className="brand-mark">A</span>AURA <span style={{color:'#777'}}>CAFE</span></a><nav><a href="#reserve">Reserve</a><a href="#experience">Experience</a><a href="#features">Features</a></nav><button className="cta" onClick={()=>document.querySelector('#reserve')?.scrollIntoView({behavior:'smooth'})}>Book a seat ↗</button></div></header>
  <main className="wrap">
@@ -25,7 +49,7 @@ export default function Home(){
  <div className="selection"><div><small>Selected seat</small><strong>{selected??'None selected'}</strong></div><div className="fee"><small>Reservation fee</small><strong>Rp {fee.toLocaleString('id-ID')}</strong></div><button className="primary" disabled={!selected} onClick={()=>setOpen(true)}>Continue →</button></div></div></div></section>
  <section className="section" id="features"><div className="section-head"><div><p className="eyebrow"><span/> System</p><h2>Built for a<br/><em>better visit.</em></h2></div></div><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:1,background:'#2a2d26'}}>{[['01','Visual seat map','Lihat layout cafe sebelum datang dan pilih kursi yang paling sesuai.'],['02','Live availability','Kursi occupied dikunci agar tidak dapat dipilih oleh pelanggan lain.'],['03','Admin ready','Arsitektur database disiapkan untuk dashboard admin, laporan, dan manajemen kursi.']].map(x=><div key={x[0]} style={{padding:'35px',background:'#0d0f0c'}}><span style={{color:'#d7ff63'}}>{x[0]}</span><h3>{x[1]}</h3><p style={{color:'#777',lineHeight:1.7}}>{x[2]}</p></div>)}</div></section>
  </main><footer><span>© 2026 AURA CAFE</span><span>Modern reservation system · Tegal</span><span>Indonesia</span></footer>
- {open&&<div className="modal"><div className="modal-card"><button className="close" onClick={()=>setOpen(false)}>×</button><p className="eyebrow"><span/> Almost there</p><h2>Confirm your <em>reservation.</em></h2><div className="summary"><div><span>Date</span><b>{date||'Pilih tanggal'}</b></div><div><span>Time</span><b>{time}</b></div><div><span>Guests</span><b>{guests}</b></div><div><span>Seat</span><b>{selected}</b></div></div><button className="primary wide" onClick={confirm}>Confirm booking →</button></div></div>}
+ {open&&<div className="modal"><div className="modal-card"><button className="close" onClick={()=>setOpen(false)}>×</button><p className="eyebrow"><span/> Almost there</p><h2>Confirm your <em>reservation.</em></h2><div className="summary"><div><span>Date</span><b>{date||'Pilih tanggal'}</b></div><div><span>Time</span><b>{time}</b></div><div><span>Guests</span><b>{guests}</b></div><div><span>Seat</span><b>{selected}</b></div></div><div style={{display:'grid',gap:10,margin:'20px 0'}}><input placeholder="Nama lengkap" value={name} onChange={e=>setName(e.target.value)}/><input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}/><input placeholder="No. WhatsApp (opsional)" value={phone} onChange={e=>setPhone(e.target.value)}/></div><button className="primary wide" disabled={loading} onClick={confirm}>{loading?'Saving...':'Confirm booking →'}</button></div></div>}
  {toast&&<div className="toast">{toast}</div>}
  </>;
 }
