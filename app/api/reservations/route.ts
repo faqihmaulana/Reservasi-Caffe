@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 const schema = z.object({
@@ -7,7 +8,7 @@ const schema = z.object({
   email: z.string().email(),
   phone: z.string().optional(),
   seatCode: z.string().min(1),
-  date: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   guests: z.number().int().positive(),
   notes: z.string().optional(),
@@ -61,6 +62,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // Customer accounts are not logged in yet, so create a random
+    // password hash for first-time customers. The customer never receives
+    // or uses this password in the public booking flow.
+    const guestPasswordHash = await bcrypt.hash(
+      `guest-${crypto.randomUUID()}`,
+      10,
+    );
+
     const user = await prisma.user.upsert({
       where: { email: data.email },
       update: {
@@ -71,6 +80,8 @@ export async function POST(req: Request) {
         name: data.name,
         email: data.email,
         phone: data.phone,
+        passwordHash: guestPasswordHash,
+        role: 'CUSTOMER',
       },
     });
 
@@ -96,7 +107,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reservation }, { status: 201 });
   } catch (error) {
-    console.error(error);
+    console.error('Reservation error:', error);
+
     return NextResponse.json(
       { error: 'Invalid reservation data.' },
       { status: 400 },
