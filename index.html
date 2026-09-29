@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Table & seat reservation experience for Aura Cafe." />
+  <title>AURA — Cafe Reservation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="nav">
+    <a class="brand" href="#"><span class="brand-mark">A</span><span>AURA<span class="muted"> CAFE</span></span></a>
+    <nav><a href="#reserve">Reserve</a><a href="#experience">Experience</a><a href="#menu">Menu</a></nav>
+    <button class="nav-cta" onclick="document.querySelector('#reserve').scrollIntoView({behavior:'smooth'})">Book a seat <span>↗</span></button>
+  </header>
+
+  <main>
+    <section class="hero" id="experience">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> Specialty coffee · Tegal</p>
+        <h1>Your table,<br><em>your moment.</em></h1>
+        <p class="hero-text">A cinematic reservation experience for slow mornings, focused afternoons, and nights worth remembering.</p>
+        <div class="hero-actions"><button class="primary" onclick="document.querySelector('#reserve').scrollIntoView({behavior:'smooth'})">Find your seat <span>→</span></button><button class="ghost" onclick="showToast('Menu preview akan segera tersedia.')">Explore menu</button></div>
+        <div class="social-proof"><div class="avatars"><i>F</i><i>R</i><i>A</i><i>+</i></div><div><strong>4.9/5</strong><small>from 1,280 guests</small></div></div>
+      </div>
+      <div class="hero-visual">
+        <div class="glow"></div><div class="floating-card top"><span>Open today</span><b>08:00 — 23:00</b></div>
+        <div class="scene-card"><div class="scene-grid"></div><div class="table t1"><span>01</span></div><div class="table t2"><span>02</span></div><div class="table t3"><span>03</span></div><div class="table t4"><span>04</span></div><div class="plant">♧</div><div class="bar">AURA / BAR</div></div>
+        <div class="floating-card bottom"><span>Tonight</span><b>8 seats left</b><small>View availability →</small></div>
+      </div>
+    </section>
+
+    <section class="reservation" id="reserve">
+      <div class="section-heading"><div><p class="eyebrow"><span></span> Reservation</p><h2>Choose how you want<br>to <em>sit.</em></h2></div><p class="hint">Select a date, time, party size, then tap the seat you love. Your selection updates instantly.</p></div>
+      <div class="booking-shell">
+        <aside class="booking-side">
+          <div class="step active"><span>01</span><div><b>Date & time</b><small>When are you coming?</small></div></div>
+          <div class="step active"><span>02</span><div><b>Party</b><small>How many guests?</small></div></div>
+          <div class="step active"><span>03</span><div><b>Seat</b><small>Pick your favorite</small></div></div>
+          <div class="side-note"><span>✦</span><p>Private corners are limited. Reserve early for sunset hours.</p></div>
+        </aside>
+        <div class="booking-main">
+          <div class="controls">
+            <label>Date<input id="dateInput" type="date"></label>
+            <label>Time<select id="timeInput"><option>18:30</option><option>19:00</option><option>19:30</option><option>20:00</option><option>20:30</option><option>21:00</option></select></label>
+            <label>Guests<select id="guestInput"><option>2 guests</option><option>3 guests</option><option>4 guests</option><option>5 guests</option><option>6 guests</option></select></label>
+          </div>
+          <div class="legend"><span><i class="dot available"></i> Available</span><span><i class="dot selected"></i> Your pick</span><span><i class="dot occupied"></i> Occupied</span></div>
+          <div class="floor-wrap">
+            <div class="floor-label">WINDOW</div><div class="window-line"></div>
+            <div class="floor-plan" id="floorPlan">
+              <div class="zone lounge">LOUNGE</div><div class="zone barzone">BAR</div><div class="zone stage">VINYL / DJ</div>
+              <button class="seat seat-round available" data-seat="A01" style="--x:12%;--y:30%"><b>A01</b><small>2</small></button>
+              <button class="seat seat-round occupied" data-seat="A02" style="--x:29%;--y:28%"><b>A02</b><small>2</small></button>
+              <button class="seat seat-square available" data-seat="B01" style="--x:48%;--y:26%"><b>B01</b><small>4</small></button>
+              <button class="seat seat-square available" data-seat="B02" style="--x:67%;--y:26%"><b>B02</b><small>4</small></button>
+              <button class="seat seat-round available" data-seat="C01" style="--x:84%;--y:29%"><b>C01</b><small>2</small></button>
+              <button class="seat seat-round available" data-seat="A03" style="--x:13%;--y:65%"><b>A03</b><small>2</small></button>
+              <button class="seat seat-square available" data-seat="B03" style="--x:34%;--y:66%"><b>B03</b><small>4</small></button>
+              <button class="seat seat-round occupied" data-seat="C02" style="--x:55%;--y:67%"><b>C02</b><small>2</small></button>
+              <button class="seat seat-square available" data-seat="D01" style="--x:74%;--y:65%"><b>D01</b><small>4</small></button>
+              <button class="seat seat-round available" data-seat="D02" style="--x:89%;--y:67%"><b>D02</b><small>2</small></button>
+              <div class="path p1"></div><div class="path p2"></div>
+            </div>
+          </div>
+          <div class="selection-bar"><div><small>Selected seat</small><strong id="selectedSeat">None selected</strong></div><div class="price"><small>Reservation fee</small><strong id="fee">Rp 0</strong></div><button id="continueBtn" class="primary" disabled>Continue →</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="menu"><div class="feature"><span>01</span><h3>Choose your view</h3><p>Window, bar, lounge, or intimate corner — see the floor before you arrive.</p></div><div class="feature"><span>02</span><h3>Live availability</h3><p>Occupied seats are locked visually so you can choose with confidence.</p></div><div class="feature"><span>03</span><h3>Easy confirmation</h3><p>Review your party details and receive a clean reservation summary.</p></div></section>
+  </main>
+
+  <div class="modal" id="modal"><div class="modal-card"><button class="close" onclick="closeModal()">×</button><p class="eyebrow"><span></span> Almost there</p><h2>Confirm your <em>reservation.</em></h2><div class="summary"><div><span>Date</span><b id="sumDate">—</b></div><div><span>Time</span><b id="sumTime">—</b></div><div><span>Guests</span><b id="sumGuests">—</b></div><div><span>Seat</span><b id="sumSeat">—</b></div></div><button class="primary wide" onclick="confirmBooking()">Confirm booking <span>→</span></button></div></div>
+  <div class="toast" id="toast"></div>
+  <footer><span>© 2026 AURA CAFE</span><span>Made for good coffee & good company.</span><span>Tegal · Indonesia</span></footer>
+  <script src="app.js"></script>
+</body></html>
